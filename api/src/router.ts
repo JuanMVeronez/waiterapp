@@ -6,6 +6,11 @@ import { createCategory } from './app/useCases/categories/createCategory';
 import { listProducts } from './app/useCases/products/listProducts';
 import { createProduct } from './app/useCases/products/createProduct';
 import multer from 'multer';
+import { listProductsByCategory } from './app/useCases/categories/listProductsByCategory';
+import { listOrders } from './app/useCases/order/listOrders';
+import { createOrder } from './app/useCases/order/createOrder';
+import { changeOrderStatus } from './app/useCases/order/changeOrderStatus';
+import { cancelOrder } from './app/useCases/order/cancelOrder';
 
 export const router = Router();
 
@@ -27,13 +32,9 @@ router.post('/products', upload.single('image'), createProduct);
 
 router.get('/categories', listCategories);
 router.post('/categories', createCategory);
+router.get('/categories/:id/products', listProductsByCategory);
 
-router.post('/categories/:id/products', (req, res) => res.send('Products of category'));
-
-router.get('/orders', (req, res) => res.send('List orders'));
-
-router.post('/orders', (req, res) => res.send('Create order'));
-
-router.patch('/orders/:id', (req, res) => res.send('Change order status'));
-
-router.delete('/orders/:id', (req, res) => res.send('Delete order'));
+router.get('/orders', listOrders);
+router.post('/orders', createOrder);
+router.patch('/orders/:id', changeOrderStatus);
+router.delete('/orders/:id', cancelOrder);
