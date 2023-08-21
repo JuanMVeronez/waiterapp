@@ -1,22 +1,43 @@
+import { useEffect } from 'react';
 import closeIcon from '../../assets/images/close-icon.svg';
 import { Order } from '../../types/Order';
+import { formatCurrency } from '../../utils/formatCurrency';
 
-import { Modal, OrderDetails, Overlay } from './styles';
+import { Actions, Modal, OrderDetails, Overlay } from './styles';
 
 interface OrderModalProps {
   visible: boolean;
   order: Order | null;
+  onClose: () => unknown;
 }
 
-export function OrderModal({ visible, order }: OrderModalProps) {
+export function OrderModal({ visible, order, onClose }: OrderModalProps) {
+  useEffect(() => {
+    function handleCloseOnEscape(event: KeyboardEvent) {
+      if (event.key === 'Escape') onClose();
+    }
+
+    document.addEventListener('keydown', handleCloseOnEscape);
+
+    return () => {
+      document.removeEventListener('keydown', handleCloseOnEscape);
+
+    };
+  }, [onClose]);
+
   if (!visible || order === null) return null;
+
+  const total = order.products.reduce(
+    (acc, { quantity, product }) => (acc + (quantity * product.price)),
+    0,
+  );
 
   return (
     <Overlay>
       <Modal>
         <header>
           <strong>{`Mese ${order.table}`}</strong>
-          <button>
+          <button onClick={() => onClose()}>
             <img src={closeIcon} alt="Fechar modal" />
           </button>
         </header>
@@ -54,12 +75,27 @@ export function OrderModal({ visible, order }: OrderModalProps) {
 
                 <div className="product-details">
                   <strong>{product.name}</strong>
-                  <span>{product.price}</span>
+                  <span>{formatCurrency(product.price)}</span>
                 </div>
               </div>
             ))}
           </div>
+
+          <div className="total">
+            <span>Total</span>
+            <strong>{formatCurrency(total)}</strong>
+          </div>
         </OrderDetails>
+
+        <Actions>
+          <button className="primary">
+            <span>👩‍🍳</span>
+            <strong>Iniciar Produção</strong>
+          </button>
+          <button className="secondary">
+            Cancelar Pedido
+          </button>
+        </Actions>
       </Modal>
     </Overlay>
   );
