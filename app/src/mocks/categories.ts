@@ -19,4 +19,24 @@ export const categories = [
     name: 'Promoções',
     icon: '🏷',
   },
+  {
+    _id: '6372d595f9ebdda354700c12',
+    name: 'Pizza',
+    icon: '🍕',
+  },
+  {
+    _id: '6372d5bff9ebdda35470012',
+    name: 'Bebidas',
+    icon: '🍻',
+  },
+  {
+    _id: '6372d5d2f9ebdda35470122',
+    name: 'Burgers',
+    icon: '🍔',
+  },
+  {
+    _id: '6372d5dcf9ebdda3547124',
+    name: 'Promoções',
+    icon: '🏷',
+  },
 ];
