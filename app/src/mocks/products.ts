@@ -3,7 +3,7 @@ export const products = [
     _id: '6372e040f52e37ef85fe2c5e',
     name: 'Pizza quatro queijos',
     description: 'Deliciosa pizza quatro queijos com borda simples',
-    imagePath: '1668472896991-quatro-queijos.png',
+    imagePath: '1691958899224-quatro-queijos.png',
     price: 40,
     ingredients: [
       {
