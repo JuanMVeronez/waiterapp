@@ -12,10 +12,23 @@ import {
   Footer,
   SafeFooter
 } from './styles';
+import { Cart } from '../components/Cart';
+import { CartItem } from '../types/CartItem';
+import { products } from '../mocks/products';
 
 export function Main() {
   const [isTableModalVisible, setIsTableModalVisible] = useState(false);
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
+  const [cartItems] = useState<CartItem[]>([
+    {
+      product: products[0],
+      quantity: 2,
+    },
+    {
+      product: products[1],
+      quantity: 3,
+    }
+  ]);
 
   function handleSaveTable(table: string) {
     setSelectedTable(table);
@@ -50,8 +63,10 @@ export function Main() {
       </Container>
       <Footer>
         <SafeFooter>
-          {!selectedTable && (
+          {!selectedTable ? (
             <Button onPress={() => setIsTableModalVisible(true)}>Novo Pedido</Button>
+          ) : (
+            <Cart cartItems={cartItems} />
           )}
         </SafeFooter>
       </Footer>
