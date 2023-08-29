@@ -21,10 +21,23 @@ export function Main() {
     setSelectedTable(table);
   }
 
+  function handleCancelOrder() {
+    setSelectedTable(null);
+  }
+
   return (
     <>
+      <TableModal
+        onSave={handleSaveTable}
+        onClose={() => setIsTableModalVisible(false)}
+        visible={isTableModalVisible}
+      />
+
       <Container>
-        <Header />
+        <Header
+          selectedTable={selectedTable}
+          onCancelOrder={handleCancelOrder}
+        />
 
         <CategoriesContainer>
           <Categories />
@@ -42,12 +55,6 @@ export function Main() {
           )}
         </SafeFooter>
       </Footer>
-
-      <TableModal
-        onSave={handleSaveTable}
-        onClose={() => setIsTableModalVisible(false)}
-        visible={isTableModalVisible}
-      />
     </>
   );
 }
