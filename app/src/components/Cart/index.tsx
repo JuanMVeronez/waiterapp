@@ -9,8 +9,10 @@ import { Button } from '../Button';
 import { Product } from '../../types/Product';
 import { useState } from 'react';
 import { OrderConfirmedModal } from '../OrderConfirmedModal';
+import { api } from '../../utils/api';
 
 interface CartProps {
+  selectedTable: string;
   cartItems: CartItem[];
   onAdd: (product: Product) => void;
   onDecrement: (product: Product) => void;
@@ -18,18 +20,29 @@ interface CartProps {
 }
 
 export function Cart({
+  selectedTable,
   cartItems,
   onAdd,
   onDecrement,
   onConfirmOrder
 }: CartProps) {
-  const [isLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
 
   const total = cartItems.reduce((acc, { product: { price }, quantity }) => acc + price * quantity, 0);
 
-  function handleConfirmOrder() {
+  async function handleConfirmOrder() {
+    setIsLoading(true);
+
+    await api.post('orders', {
+      table: selectedTable,
+      products: cartItems.map(({ product, quantity }) => (
+        { product: product._id, quantity }
+      )),
+    });
+
     setIsConfirmModalVisible(true);
+    setIsLoading(false);
   }
 
   function handleOk() {

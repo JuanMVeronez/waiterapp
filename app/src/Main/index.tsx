@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '../components/Button';
 import { Categories } from '../components/Categories';
 import { Header } from '../components/Header';
@@ -17,16 +17,41 @@ import { Cart } from '../components/Cart';
 import { CartItem } from '../types/CartItem';
 import { Product } from '../types/Product';
 import { ActivityIndicator } from 'react-native';
-import { products as mockProducts } from '../mocks/products';
 import { Empty } from '../components/Icons/Empty';
 import { Text } from '../components/Text';
+import { Category } from '../types/Category';
+import { api } from '../utils/api';
 
 export function Main() {
   const [isTableModalVisible, setIsTableModalVisible] = useState(false);
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [products] = useState<Product[]>(mockProducts);
-  const [isLoading] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
+
+  useEffect(() => {
+    Promise.all([
+      api.get<Category[]>('categories'),
+      api.get<Product[]>('products'),
+    ]).then(([{ data: categories }, { data: products } ]) => {
+      setCategories(categories);
+      setProducts(products);
+      setIsLoading(false);
+    });
+  }, []);
+
+  async function handleSelectCategory(categoryId: Category['_id']) {
+    setIsLoadingProducts(true);
+    const route = !categoryId
+      ? 'products'
+      : `categories/${categoryId}/products`;
+
+    const { data } = await api.get<Product[]>(route);
+    setProducts(data);
+    setIsLoadingProducts(false);
+  }
 
   function handleAddToCart(product: Product) {
     if (!selectedTable) setIsTableModalVisible(true);
@@ -99,22 +124,34 @@ export function Main() {
         ) : (
           <>
             <CategoriesContainer>
-              <Categories />
+              <Categories categories={categories} onSelectCategory={handleSelectCategory} />
             </CategoriesContainer>
 
-            <MenuContainer>
-              {products.length > 0 ? (
-                <Menu
-                  products={products}
-                  onAddToCart={handleAddToCart}
-                />
-              ) : (
-                <CenteredContainer>
-                  <Empty />
-                  <Text color="#666" opacity={0.9} style={{ marginTop: 24 }}>Nenhum produto foi encontrado</Text>
-                </CenteredContainer>
-              )}
-            </MenuContainer>
+            {isLoadingProducts ? (
+              <CenteredContainer>
+                <ActivityIndicator size="large" color="#D73035" />
+              </CenteredContainer>
+            ) : (
+              <>
+                {products.length > 0 ? (
+                  <MenuContainer>
+                    <Menu
+                      products={products}
+                      onAddToCart={handleAddToCart}
+                    />
+                  </MenuContainer>
+                ) : (
+                  <CenteredContainer>
+                    <Empty />
+                    <Text
+                      color="#666"
+                      opacity={0.9}
+                      style={{ marginTop: 24 }}
+                    >Nenhum produto foi encontrado</Text>
+                  </CenteredContainer>
+                )}
+              </>
+            )}
           </>
         )}
 
@@ -124,10 +161,11 @@ export function Main() {
           {!selectedTable ? (
             <Button
               onPress={() => setIsTableModalVisible(true)}
-              disabled={isLoading}
+              disabled={isLoading || isLoadingProducts}
             >Novo Pedido</Button>
           ) : (
             <Cart
+              selectedTable={selectedTable}
               cartItems={cartItems}
               onAdd={handleAddToCart}
               onDecrement={handleDecrementCartItem}
