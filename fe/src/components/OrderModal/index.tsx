@@ -8,10 +8,13 @@ import { Actions, Modal, OrderDetails, Overlay } from './styles';
 interface OrderModalProps {
   visible: boolean;
   order: Order | null;
+  isLoading: boolean;
   onClose: () => unknown;
+  onCancelOrder: () => Promise<void>;
+  onChangeOrderStatus: () => Promise<void>;
 }
 
-export function OrderModal({ visible, order, onClose }: OrderModalProps) {
+export function OrderModal({ visible, order, isLoading, onClose, onChangeOrderStatus, onCancelOrder }: OrderModalProps) {
   useEffect(() => {
     function handleCloseOnEscape(event: KeyboardEvent) {
       if (event.key === 'Escape') onClose();
@@ -88,11 +91,30 @@ export function OrderModal({ visible, order, onClose }: OrderModalProps) {
         </OrderDetails>
 
         <Actions>
-          <button className="primary">
-            <span>👩‍🍳</span>
-            <strong>Iniciar Produção</strong>
-          </button>
-          <button className="secondary">
+          {order.status !== 'DONE' && (
+            <button
+              className="primary"
+              disabled={isLoading}
+              onClick={onChangeOrderStatus}
+            >
+              {order.status === 'WAITING' ? (
+                <>
+                  <span>👩‍🍳</span>
+                  <strong>Iniciar Produção</strong>
+                </>
+              ) : (
+                <>
+                  <span>✅</span>
+                  <strong>Concluir Pedido</strong>
+                </>
+              )}
+            </button>
+          )}
+          <button
+            className="secondary"
+            onClick={onCancelOrder}
+            disabled={isLoading}
+          >
             Cancelar Pedido
           </button>
         </Actions>

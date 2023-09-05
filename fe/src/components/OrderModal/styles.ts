@@ -1,4 +1,4 @@
-import { styled } from 'styled-components';
+import styled from 'styled-components';
 
 export const Overlay = styled.div`
   width: 100%;
@@ -121,6 +121,11 @@ export const Actions = styled.footer`
   gap: 0.75rem;
 
   margin-top: 2rem;
+
+  button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 
   .primary {
     background: #333;
